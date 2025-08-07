@@ -1,0 +1,779 @@
+/* static/css/style.css - محلل الشطرنج الجزائري المتقدم */
+
+/* استيراد الخطوط العربية المحسنة */
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
+
+/* المتغيرات المحسنة */
+:root {
+    /* الألوان الأساسية */
+    --primary-blue: #3b82f6;
+    --primary-purple: #8b5cf6;
+    --primary-green: #10b981;
+    --primary-orange: #f59e0b;
+    --primary-red: #ef4444;
+    --primary-gray: #6b7280;
+    
+    /* ألوان الشطرنج */
+    --chess-light: #f0d9b5;
+    --chess-dark: #b58863;
+    --chess-board-border: #8b4513;
+    
+    /* التدرجات المحسنة */
+    --gradient-primary: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-purple) 50%, var(--primary-green) 100%);
+    --gradient-success: linear-gradient(135deg, var(--primary-green) 0%, #059669 100%);
+    --gradient-warning: linear-gradient(135deg, var(--primary-orange) 0%, #d97706 100%);
+    --gradient-danger: linear-gradient(135deg, var(--primary-red) 0%, #dc2626 100%);
+    --gradient-hero: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    
+    /* الظلال المحسنة */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    
+    /* الانتقالات */
+    --transition-fast: 0.15s ease;
+    --transition-normal: 0.3s ease;
+    --transition-slow: 0.5s ease;
+    --transition-bounce: 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    --transition-smooth: 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* إعدادات الخط العامة المحسنة */
+* {
+    font-family: 'Cairo', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    box-sizing: border-box;
+}
+
+body {
+    direction: rtl;
+    text-align: right;
+    font-weight: 400;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: 'kern' 1;
+}
+
+/* النصوص العربية المحسنة */
+.arabic-text {
+    font-family: 'Cairo', 'Amiri', serif;
+    line-height: 1.9;
+    letter-spacing: 0.025em;
+    word-spacing: 0.1em;
+    font-variant-ligatures: common-ligatures;
+}
+
+/* خلفية الشطرنج المحسنة */
+.chess-pattern {
+    background-image: 
+        linear-gradient(45deg, var(--chess-light) 25%, transparent 25%),
+        linear-gradient(-45deg, var(--chess-light) 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, var(--chess-light) 75%),
+        linear-gradient(-45deg, transparent 75%, var(--chess-light) 75%);
+    background-size: 80px 80px;
+    background-position: 0 0, 0 40px, 40px -40px, -40px 0px;
+    opacity: 0.08;
+}
+
+/* خلفية البطل المحسنة */
+.gradient-bg {
+    background: var(--gradient-hero);
+    background-attachment: fixed;
+}
+
+/* الخلفية المتحركة للصفحة الرئيسية */
+.chess-bg {
+    background-image: 
+        radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 40% 80%, rgba(16, 185, 129, 0.1) 0%, transparent 50%);
+    background-attachment: fixed;
+    animation: gradientShift 15s ease infinite;
+}
+
+@keyframes gradientShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+/* بطاقات محسنة مع تأثيرات متقدمة */
+.card-hover {
+    transition: var(--transition-smooth);
+    transform-origin: center center;
+    position: relative;
+    overflow: hidden;
+}
+
+.card-hover:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    transition: left var(--transition-slow);
+    z-index: 1;
+}
+
+.card-hover:hover:before {
+    left: 100%;
+}
+
+.card-hover:hover {
+    transform: translateY(-12px) scale(1.02);
+    box-shadow: var(--shadow-2xl);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+/* أزرار محسنة مع تأثيرات متقدمة */
+.btn-primary {
+    background: var(--gradient-primary);
+    transition: var(--transition-normal);
+    position: relative;
+    overflow: hidden;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-primary:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left var(--transition-normal);
+}
+
+.btn-primary:hover:before {
+    left: 100%;
+}
+
+.btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-xl);
+    background: linear-gradient(135deg, #2563eb 0%, #7c3aed 50%, #059669 100%);
+}
+
+.btn-primary:active {
+    transform: translateY(0px);
+}
+
+.btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+    background: var(--primary-gray);
+}
+
+/* أزرار التحليل المتقدمة */
+.analysis-type-btn {
+    transition: var(--transition-bounce);
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(145deg, #ffffff, #f8fafc);
+    border: 2px solid;
+    cursor: pointer;
+}
+
+.analysis-type-btn:before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
+    opacity: 0;
+    transition: var(--transition-normal);
+    transform: scale(0);
+}
+
+.analysis-type-btn:hover:before {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.analysis-type-btn:hover {
+    transform: translateY(-6px) scale(1.03);
+    box-shadow: var(--shadow-xl);
+}
+
+.analysis-type-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+/* خيارات عدد المباريات المحسنة */
+.game-count-option {
+    transition: var(--transition-normal);
+    cursor: pointer;
+}
+
+.game-count-option div {
+    transition: var(--transition-normal);
+    position: relative;
+    overflow: hidden;
+}
+
+.game-count-option:hover div {
+    border-color: var(--primary-blue) !important;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.05));
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.game-count-option input:checked + div {
+    border-color: var(--primary-blue) !important;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(139, 92, 246, 0.1));
+    transform: scale(1.05);
+    box-shadow: var(--shadow-lg);
+}
+
+/* شريط التقدم المتقدم */
+.progress-bar {
+    background: var(--gradient-primary);
+    border-radius: 9999px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    height: 12px;
+}
+
+.progress-bar:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.4) 50%, transparent 70%);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+/* تحسينات الرقعة */
+.chessboard-wrapper {
+    border-radius: 1.5rem;
+    box-shadow: var(--shadow-xl);
+    overflow: hidden;
+    background: var(--chess-light);
+    border: 4px solid var(--chess-board-border);
+    position: relative;
+}
+
+.chessboard-wrapper:before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    padding: 2px;
+    background: var(--gradient-primary);
+    border-radius: inherit;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: xor;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+}
+
+/* قطع الشطرنج المحسنة */
+.chess-piece {
+    transition: var(--transition-bounce);
+    cursor: pointer;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.chess-piece:hover {
+    transform: scale(1.15) rotate(5deg);
+    filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3));
+    z-index: 10;
+}
+
+/* تحسينات الجداول */
+table {
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 1rem;
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+    background: white;
+}
+
+table th {
+    background: var(--gradient-primary);
+    color: white;
+    font-weight: 700;
+    padding: 1.25rem;
+    text-align: right;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+table td {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    transition: var(--transition-fast);
+    position: relative;
+}
+
+table tr:hover td {
+    background: linear-gradient(90deg, rgba(59, 130, 246, 0.05), rgba(139, 92, 246, 0.05));
+    transform: scale(1.01);
+}
+
+/* نظام الإشعارات المحسن */
+.notification {
+    border-radius: 1rem;
+    box-shadow: var(--shadow-xl);
+    backdrop-filter: blur(20px);
+    border: 2px solid;
+    transition: var(--transition-normal);
+    position: relative;
+    overflow: hidden;
+    font-weight: 500;
+}
+
+.notification:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: currentColor;
+    opacity: 0.3;
+}
+
+.notification.success {
+    background: rgba(16, 185, 129, 0.95);
+    border-color: rgba(5, 150, 105, 0.8);
+    color: white;
+}
+
+.notification.error {
+    background: rgba(239, 68, 68, 0.95);
+    border-color: rgba(220, 38, 38, 0.8);
+    color: white;
+}
+
+.notification.info {
+    background: rgba(59, 130, 246, 0.95);
+    border-color: rgba(37, 99, 235, 0.8);
+    color: white;
+}
+
+.notification.warning {
+    background: rgba(245, 158, 11, 0.95);
+    border-color: rgba(217, 119, 6, 0.8);
+    color: white;
+}
+
+/* تحسينات النماذج */
+input[type="text"], 
+input[type="email"], 
+input[type="date"],
+select, 
+textarea {
+    transition: var(--transition-normal);
+    border-radius: 1rem;
+    border: 2px solid #e5e7eb;
+    padding: 1rem 1.25rem;
+    font-size: 1rem;
+    background: white;
+    font-family: inherit;
+    position: relative;
+}
+
+input[type="text"]:focus, 
+input[type="email"]:focus,
+input[type="date"]:focus,
+select:focus, 
+textarea:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+    transform: translateY(-2px);
+    background: linear-gradient(145deg, #ffffff, #f8fafc);
+}
+
+/* أشرطة التمرير المخصصة */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--gradient-primary);
+    border-radius: 10px;
+    box-shadow: inset 0 0 2px rgba(0, 0, 0, 0.2);
+    border: 2px solid transparent;
+    background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #2563eb, #7c3aed);
+    background-clip: content-box;
+}
+
+::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+/* تأثيرات التحريك المتقدمة */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes bounceIn {
+    0% {
+        transform: scale(0.3);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    70% {
+        transform: scale(0.9);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* فئات التحريك */
+.animate-fade-in {
+    animation: fadeIn 0.8s ease-out;
+}
+
+.animate-slide-up {
+    animation: slideUp 0.6s ease-out;
+}
+
+.animate-bounce-in {
+    animation: bounceIn 1s var(--transition-bounce);
+}
+
+.animate-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+.bounce-in {
+    animation: bounceIn 0.6s var(--transition-bounce);
+}
+
+/* مؤشر التحميل المحسن */
+.loading-spinner {
+    border: 4px solid rgba(59, 130, 246, 0.3);
+    border-radius: 50%;
+    border-top: 4px solid var(--primary-blue);
+    width: 2.5rem;
+    height: 2.5rem;
+    animation: spin 1s linear infinite;
+    display: inline-block;
+    box-shadow: var(--shadow-md);
+}
+
+/* تحسينات الروابط */
+.nav-link {
+    position: relative;
+    overflow: hidden;
+    transition: var(--transition-normal);
+}
+
+.nav-link:before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 3px;
+    background: currentColor;
+    transition: width var(--transition-normal);
+    border-radius: 2px;
+}
+
+.nav-link:hover:before {
+    width: 100%;
+}
+
+.nav-link:hover {
+    transform: translateY(-1px);
+}
+
+/* رسائل الخطأ والنجاح */
+.error-message {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.05));
+    border: 2px solid rgba(239, 68, 68, 0.3);
+    color: #dc2626;
+    padding: 1rem 1.25rem;
+    border-radius: 1rem;
+    margin-top: 0.75rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    position: relative;
+    animation: slideInRight 0.3s ease-out;
+}
+
+.success-message {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.05));
+    border: 2px solid rgba(16, 185, 129, 0.3);
+    color: #059669;
+    padding: 1rem 1.25rem;
+    border-radius: 1rem;
+    margin-top: 0.75rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    position: relative;
+    animation: slideInRight 0.3s ease-out;
+}
+
+/* تحسينات الاستجابة المتقدمة */
+@media (max-width: 1024px) {
+    .container {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    
+    .arabic-text {
+        font-size: 0.9rem;
+        line-height: 1.7;
+    }
+    
+    .card-hover:hover {
+        transform: translateY(-6px) scale(1.01);
+    }
+    
+    .analysis-type-btn {
+        padding: 1.5rem;
+    }
+    
+    .analysis-type-btn:hover {
+        transform: translateY(-4px) scale(1.02);
+    }
+    
+    nav h1 {
+        font-size: 1.5rem;
+    }
+    
+    .notification {
+        margin: 0.5rem;
+        max-width: calc(100% - 1rem);
+    }
+    
+    .chess-pattern {
+        background-size: 40px 40px;
+        background-position: 0 0, 0 20px, 20px -20px, -20px 0px;
+    }
+}
+
+@media (max-width: 640px) {
+    .text-6xl {
+        font-size: 3.5rem;
+    }
+    
+    .text-4xl {
+        font-size: 2.25rem;
+    }
+    
+    .text-3xl {
+        font-size: 1.875rem;
+    }
+    
+    .grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .analysis-type-btn {
+        padding: 1.25rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero h1 {
+        font-size: 2rem;
+    }
+    
+    .card-hover {
+        margin: 0.5rem 0;
+    }
+    
+    .analysis-type-btn {
+        padding: 1rem;
+    }
+    
+    .btn-primary {
+        padding: 0.75rem 1.5rem;
+    }
+    
+    table th,
+    table td {
+        padding: 0.75rem;
+        font-size: 0.875rem;
+    }
+}
+
+/* تحسينات الطباعة */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    body {
+        color: black;
+        background: white;
+    }
+    
+    .card-hover {
+        box-shadow: none;
+        border: 1px solid #ccc;
+    }
+    
+    .gradient-primary,
+    .btn-primary {
+        background: #3b82f6 !important;
+        color: white !important;
+    }
+    
+    .chess-pattern {
+        opacity: 0.1;
+    }
+}
+
+/* تحسينات إضافية للأداء */
+.gpu-accelerated {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+}
+
+/* تأثير الكتابة المتحركة */
+@keyframes typewriter {
+    from { width: 0; }
+    to { width: 100%; }
+}
+
+@keyframes blink-caret {
+    from, to { border-color: transparent; }
+    50% { border-color: var(--primary-blue); }
+}
+
+.typewriter {
+    overflow: hidden;
+    border-right: 0.15em solid var(--primary-blue);
+    white-space: nowrap;
+    margin: 0 auto;
+    animation: typewriter 3s steps(40, end), blink-caret 0.75s step-end infinite;
+}
+
+/* تحسينات الوضع الداكن (اختيارية) */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-primary: #1f2937;
+        --text-primary: #f9fafb;
+        --border-color: #374151;
+    }
+    
+    /* يمكن إضافة المزيد من التحسينات للوضع الداكن */
+}
+
+/* تأثيرات الهوفر المتقدمة */
+.advanced-hover {
+    position: relative;
+    overflow: hidden;
+}
+
+.advanced-hover:before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+    transition: var(--transition-normal);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.advanced-hover:hover:before {
+    width: 300px;
+    height: 300px;
+}
+
+/* النهاية */

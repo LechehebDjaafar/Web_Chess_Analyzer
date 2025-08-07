@@ -1,0 +1,529 @@
+<!-- templates/batch_analysis.html -->
+{% extends "base.html" %}
+
+{% block title %}التحليل المقارن للمباريات - محلل الشطرنج الجزائري{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-2xl shadow-xl p-8 mb-8" data-aos="fade-up">
+        <div class="text-center">
+            <div class="text-6xl mb-4">📊</div>
+            <h1 class="text-4xl font-bold arabic-text mb-4">التحليل المقارن للمباريات</h1>
+            <p class="text-indigo-100 text-xl arabic-text">قارن أداءك عبر مباريات متعددة واكتشف الأنماط</p>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="grid lg:grid-cols-4 md:grid-cols-2 gap-6 mb-8">
+        <div class="bg-white rounded-2xl shadow-lg p-6" data-aos="fade-up" data-aos-delay="100">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="font-bold text-gray-800 arabic-text">المباريات المحددة</h3>
+                <div class="bg-blue-100 p-3 rounded-lg">
+                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                    </svg>
+                </div>
+            </div>
+            <div class="text-3xl font-bold text-blue-600 mb-2" id="selectedCount">0</div>
+            <p class="text-gray-600 text-sm arabic-text">مباراة مختارة للمقارنة</p>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-lg p-6" data-aos="fade-up" data-aos-delay="200">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="font-bold text-gray-800 arabic-text">متوسط النقلات</h3>
+                <div class="bg-green-100 p-3 rounded-lg">
+                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                    </svg>
+                </div>
+            </div>
+            <div class="text-3xl font-bold text-green-600 mb-2" id="avgMoves">0</div>
+            <p class="text-gray-600 text-sm arabic-text">متوسط النقلات لكل مباراة</p>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-lg p-6" data-aos="fade-up" data-aos-delay="300">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="font-bold text-gray-800 arabic-text">معدل النجاح</h3>
+                <div class="bg-purple-100 p-3 rounded-lg">
+                    <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+            </div>
+            <div class="text-3xl font-bold text-purple-600 mb-2" id="winRate">0%</div>
+            <p class="text-gray-600 text-sm arabic-text">نسبة الفوز في المباريات المختارة</p>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-lg p-6" data-aos="fade-up" data-aos-delay="400">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="font-bold text-gray-800 arabic-text">الافتتاحية الأكثر</h3>
+                <div class="bg-orange-100 p-3 rounded-lg">
+                    <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path>
+                    </svg>
+                </div>
+            </div>
+            <div class="text-lg font-bold text-orange-600 mb-2" id="topOpening">-</div>
+            <p class="text-gray-600 text-sm arabic-text">الافتتاحية الأكثر استخداماً</p>
+        </div>
+    </div>
+
+    <!-- Comparison Charts -->
+    <div class="bg-white rounded-2xl shadow-xl p-8 mb-8" data-aos="fade-up" data-aos-delay="500">
+        <h2 class="text-2xl font-bold mb-6 arabic-text">📈 مخططات المقارنة</h2>
+        
+        <div class="grid lg:grid-cols-2 gap-8">
+            <!-- Results Distribution -->
+            <div>
+                <h3 class="text-xl font-bold mb-4 arabic-text">توزيع النتائج</h3>
+                <div id="resultsChart" class="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
+                    <canvas id="resultsCanvas" width="400" height="200"></canvas>
+                </div>
+            </div>
+
+            <!-- Performance by Color -->
+            <div>
+                <h3 class="text-xl font-bold mb-4 arabic-text">الأداء حسب لون القطع</h3>
+                <div id="colorChart" class="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
+                    <canvas id="colorCanvas" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Comparison Table -->
+    <div class="bg-white rounded-2xl shadow-xl p-8 mb-8" data-aos="fade-up" data-aos-delay="600">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-2xl font-bold arabic-text">🔍 جدول المقارنة التفصيلي</h2>
+            <button onclick="exportComparison()" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition duration-300">
+                📊 تصدير المقارنة
+            </button>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="w-full border-collapse border border-gray-300">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="border border-gray-300 p-3 text-right arabic-text">المباراة</th>
+                        <th class="border border-gray-300 p-3 text-right arabic-text">الخصم</th>
+                        <th class="border border-gray-300 p-3 text-right arabic-text">النتيجة</th>
+                        <th class="border border-gray-300 p-3 text-right arabic-text">اللون</th>
+                        <th class="border border-gray-300 p-3 text-right arabic-text">النقلات</th>
+                        <th class="border border-gray-300 p-3 text-right arabic-text">الافتتاحية</th>
+                        <th class="border border-gray-300 p-3 text-right arabic-text">المدة</th>
+                        <th class="border border-gray-300 p-3 text-right arabic-text">التقييم</th>
+                    </tr>
+                </thead>
+                <tbody id="comparisonTable">
+                    <!-- سيتم ملؤها بواسطة JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Insights and Recommendations -->
+    <div class="bg-white rounded-2xl shadow-xl p-8" data-aos="fade-up" data-aos-delay="700">
+        <h2 class="text-2xl font-bold mb-6 arabic-text">💡 الرؤى والتوصيات</h2>
+        
+        <div class="grid lg:grid-cols-2 gap-8">
+            <!-- Patterns Found -->
+            <div class="bg-blue-50 p-6 rounded-xl">
+                <h3 class="text-xl font-bold text-blue-800 mb-4 arabic-text">🔍 الأنماط المكتشفة</h3>
+                <div id="patternsFound" class="space-y-3">
+                    <!-- سيتم ملؤها بواسطة JavaScript -->
+                </div>
+            </div>
+
+            <!-- Recommendations -->
+            <div class="bg-green-50 p-6 rounded-xl">
+                <h3 class="text-xl font-bold text-green-800 mb-4 arabic-text">🎯 توصيات للتحسين</h3>
+                <div id="recommendations" class="space-y-3">
+                    <!-- سيتم ملؤها بواسطة JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js Library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+
+<script>
+// Load selected games from session storage
+let selectedGames = JSON.parse(sessionStorage.getItem('selectedGames') || '[]');
+let resultsChart = null;
+let colorChart = null;
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', function() {
+    if (selectedGames.length === 0) {
+        showNotification('لا توجد مباريات مختارة للمقارنة', 'error');
+        window.location.href = '/filter_games';
+        return;
+    }
+    
+    updateSummaryCards();
+    createCharts();
+    buildComparisonTable();
+    generateInsights();
+});
+
+function updateSummaryCards() {
+    const selectedCount = selectedGames.length;
+    const totalMoves = selectedGames.reduce((sum, game) => sum + game.total_moves, 0);
+    const avgMoves = Math.round(totalMoves / selectedCount);
+    const wins = selectedGames.filter(game => game.player_result === 'فوز').length;
+    const winRate = Math.round((wins / selectedCount) * 100);
+    
+    // Count openings
+    const openingCounts = {};
+    selectedGames.forEach(game => {
+        openingCounts[game.opening] = (openingCounts[game.opening] || 0) + 1;
+    });
+    
+    const topOpening = Object.entries(openingCounts)
+        .sort(([,a], [,b]) => b - a)[0]?.[0] || 'غير محدد';
+    
+    document.getElementById('selectedCount').textContent = selectedCount;
+    document.getElementById('avgMoves').textContent = avgMoves;
+    document.getElementById('winRate').textContent = winRate + '%';
+    document.getElementById('topOpening').textContent = topOpening;
+}
+
+function createCharts() {
+    createResultsChart();
+    createColorChart();
+}
+
+function createResultsChart() {
+    const ctx = document.getElementById('resultsCanvas').getContext('2d');
+    
+    const wins = selectedGames.filter(game => game.player_result === 'فوز').length;
+    const losses = selectedGames.filter(game => game.player_result === 'خسارة').length;
+    const draws = selectedGames.filter(game => game.player_result === 'تعادل').length;
+    
+    resultsChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['انتصارات', 'هزائم', 'تعادل'],
+            datasets: [{
+                data: [wins, losses, draws],
+                backgroundColor: ['#10b981', '#ef4444', '#f59e0b'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+}
+
+function createColorChart() {
+    const ctx = document.getElementById('colorCanvas').getContext('2d');
+    
+    const whiteGames = selectedGames.filter(game => game.player_color === 'white');
+    const blackGames = selectedGames.filter(game => game.player_color === 'black');
+    
+    const whiteWins = whiteGames.filter(game => game.player_result === 'فوز').length;
+    const blackWins = blackGames.filter(game => game.player_result === 'فوز').length;
+    
+    const whiteWinRate = whiteGames.length > 0 ? (whiteWins / whiteGames.length) * 100 : 0;
+    const blackWinRate = blackGames.length > 0 ? (blackWins / blackGames.length) * 100 : 0;
+    
+    colorChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['القطع البيضاء', 'القطع السوداء'],
+            datasets: [{
+                label: 'معدل الفوز (%)',
+                data: [whiteWinRate, blackWinRate],
+                backgroundColor: ['#f3f4f6', '#374151'],
+                borderColor: ['#d1d5db', '#111827'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+}
+
+function buildComparisonTable() {
+    const tableBody = document.getElementById('comparisonTable');
+    
+    selectedGames.forEach((game, index) => {
+        const row = document.createElement('tr');
+        row.className = 'hover:bg-gray-50';
+        
+        const rating = calculateGameRating(game);
+        const ratingColor = rating >= 8 ? 'text-green-600' : rating >= 6 ? 'text-yellow-600' : 'text-red-600';
+        
+        row.innerHTML = `
+            <td class="border border-gray-300 p-3 font-semibold">${index + 1}</td>
+            <td class="border border-gray-300 p-3">${game.opponent}</td>
+            <td class="border border-gray-300 p-3">
+                <span class="px-2 py-1 rounded-full text-xs font-semibold
+                    ${game.player_result === 'فوز' ? 'bg-green-100 text-green-800' : 
+                      game.player_result === 'خسارة' ? 'bg-red-100 text-red-800' : 
+                      'bg-yellow-100 text-yellow-800'}">
+                    ${game.player_result}
+                </span>
+            </td>
+            <td class="border border-gray-300 p-3 text-2xl">
+                ${game.player_color === 'white' ? '⚪' : '⚫'}
+            </td>
+            <td class="border border-gray-300 p-3 text-center font-semibold">${game.total_moves}</td>
+            <td class="border border-gray-300 p-3 text-sm">${game.opening}</td>
+            <td class="border border-gray-300 p-3 text-center">${game.game_duration} دقيقة</td>
+            <td class="border border-gray-300 p-3 text-center ${ratingColor} font-bold">
+                ${rating}/10
+            </td>
+        `;
+        
+        tableBody.appendChild(row);
+    });
+}
+
+function calculateGameRating(game) {
+    let rating = 5; // Base rating
+    
+    // Adjust based on result
+    if (game.player_result === 'فوز') rating += 2;
+    else if (game.player_result === 'تعادل') rating += 0.5;
+    else rating -= 1;
+    
+    // Adjust based on game length (prefer balanced games)
+    if (game.total_moves >= 30 && game.total_moves <= 60) rating += 1;
+    else if (game.total_moves < 20 || game.total_moves > 80) rating -= 0.5;
+    
+    // Adjust based on opening quality (simplified)
+    if (game.opening.includes('الملكية') || game.opening.includes('الملكة')) rating += 0.5;
+    
+    return Math.max(1, Math.min(10, Math.round(rating)));
+}
+
+function generateInsights() {
+    const patterns = analyzePatterns();
+    const recommendations = generateRecommendations();
+    
+    displayPatterns(patterns);
+    displayRecommendations(recommendations);
+}
+
+function analyzePatterns() {
+    const patterns = [];
+    
+    // Analyze color preference
+    const whiteGames = selectedGames.filter(g => g.player_color === 'white').length;
+    const blackGames = selectedGames.filter(g => g.player_color === 'black').length;
+    
+    if (whiteGames > blackGames * 1.5) {
+        patterns.push({
+            icon: '⚪',
+            text: 'تفضل اللعب بالقطع البيضاء بشكل واضح'
+        });
+    } else if (blackGames > whiteGames * 1.5) {
+        patterns.push({
+            icon: '⚫',
+            text: 'تفضل اللعب بالقطع السوداء بشكل واضح'
+        });
+    }
+    
+    // Analyze game length patterns
+    const shortGames = selectedGames.filter(g => g.total_moves < 30).length;
+    const longGames = selectedGames.filter(g => g.total_moves > 60).length;
+    
+    if (shortGames > selectedGames.length * 0.4) {
+        patterns.push({
+            icon: '⚡',
+            text: 'تميل إلى المباريات السريعة والحاسمة'
+        });
+    } else if (longGames > selectedGames.length * 0.4) {
+        patterns.push({
+            icon: '🕐',
+            text: 'تفضل المباريات الطويلة والاستراتيجية'
+        });
+    }
+    
+    // Analyze opening patterns
+    const openingCounts = {};
+    selectedGames.forEach(game => {
+        openingCounts[game.opening] = (openingCounts[game.opening] || 0) + 1;
+    });
+    
+    const topOpenings = Object.entries(openingCounts)
+        .sort(([,a], [,b]) => b - a)
+        .slice(0, 2);
+    
+    if (topOpenings.length > 0 && topOpenings[0][1] >= 3) {
+        patterns.push({
+            icon: '🎯',
+            text: `تكرر استخدام ${topOpenings[0][0]} بشكل متكرر`
+        });
+    }
+    
+    return patterns;
+}
+
+function generateRecommendations() {
+    const recommendations = [];
+    
+    // Analyze win rates
+    const winRate = selectedGames.filter(g => g.player_result === 'فوز').length / selectedGames.length;
+    
+    if (winRate < 0.4) {
+        recommendations.push({
+            icon: '📚',
+            text: 'ركز على دراسة الافتتاحيات الأساسية لتحسين النتائج'
+        });
+    }
+    
+    // Color-based recommendations
+    const whiteWins = selectedGames.filter(g => g.player_color === 'white' && g.player_result === 'فوز').length;
+    const blackWins = selectedGames.filter(g => g.player_color === 'black' && g.player_result === 'فوز').length;
+    const whiteGames = selectedGames.filter(g => g.player_color === 'white').length;
+    const blackGames = selectedGames.filter(g => g.player_color === 'black').length;
+    
+    const whiteWinRate = whiteGames > 0 ? whiteWins / whiteGames : 0;
+    const blackWinRate = blackGames > 0 ? blackWins / blackGames : 0;
+    
+    if (whiteWinRate > blackWinRate + 0.2) {
+        recommendations.push({
+            icon: '⚫',
+            text: 'تدرب أكثر على الدفاعات بالقطع السوداء'
+        });
+    } else if (blackWinRate > whiteWinRate + 0.2) {
+        recommendations.push({
+            icon: '⚪',
+            text: 'طور افتتاحياتك بالقطع البيضاء'
+        });
+    }
+    
+    // Game length recommendations
+    const avgMoves = selectedGames.reduce((sum, g) => sum + g.total_moves, 0) / selectedGames.length;
+    
+    if (avgMoves < 25) {
+        recommendations.push({
+            icon: '🛡️',
+            text: 'تجنب المخاطرة المبكرة وأمن موضعك أولاً'
+        });
+    } else if (avgMoves > 70) {
+        recommendations.push({
+            icon: '⚡',
+            text: 'ابحث عن فرص إنهاء المباراة بشكل أسرع'
+        });
+    }
+    
+    // Add general recommendation
+    recommendations.push({
+        icon: '🎯',
+        text: 'واصل التحليل المنتظم لمبارياتك لتحسين مستواك'
+    });
+    
+    return recommendations;
+}
+
+function displayPatterns(patterns) {
+    const container = document.getElementById('patternsFound');
+    
+    if (patterns.length === 0) {
+        container.innerHTML = '<p class="text-gray-600 arabic-text">لا توجد أنماط واضحة في هذه المجموعة</p>';
+        return;
+    }
+    
+    patterns.forEach(pattern => {
+        const div = document.createElement('div');
+        div.className = 'flex items-center bg-white p-3 rounded-lg border border-blue-200';
+        div.innerHTML = `
+            <span class="text-2xl ml-3">${pattern.icon}</span>
+            <span class="arabic-text">${pattern.text}</span>
+        `;
+        container.appendChild(div);
+    });
+}
+
+function displayRecommendations(recommendations) {
+    const container = document.getElementById('recommendations');
+    
+    recommendations.forEach(rec => {
+        const div = document.createElement('div');
+        div.className = 'flex items-center bg-white p-3 rounded-lg border border-green-200';
+        div.innerHTML = `
+            <span class="text-2xl ml-3">${rec.icon}</span>
+            <span class="arabic-text">${rec.text}</span>
+        `;
+        container.appendChild(div);
+    });
+}
+
+function exportComparison() {
+    const data = {
+        summary: {
+            total_games: selectedGames.length,
+            avg_moves: Math.round(selectedGames.reduce((sum, g) => sum + g.total_moves, 0) / selectedGames.length),
+            win_rate: Math.round((selectedGames.filter(g => g.player_result === 'فوز').length / selectedGames.length) * 100)
+        },
+        games: selectedGames,
+        analysis_date: new Date().toISOString()
+    };
+    
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `batch-analysis-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    
+    showNotification('تم تصدير تحليل المقارنة بنجاح! 📊', 'success');
+}
+
+function showNotification(message, type = 'info', duration = 3000) {
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 left-4 z-50 max-w-md p-4 rounded-lg shadow-lg ${
+        type === 'success' ? 'bg-green-500 text-white' :
+        type === 'error' ? 'bg-red-500 text-white' :
+        'bg-blue-500 text-white'
+    }`;
+    
+    notification.innerHTML = `
+        <div class="flex items-center justify-between">
+            <span class="arabic-text">${message}</span>
+            <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-white hover:opacity-75">
+                ✕
+            </button>
+        </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+        }
+    }, duration);
+}
+</script>
+{% endblock %}

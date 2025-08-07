@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+
+{% block title %}تحليل مباريات {{ analysis.username }} - محلل الشطرنج الجزائري{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <!-- Player Header -->
+    <div class="bg-white rounded-2xl shadow-xl p-8 mb-8" data-aos="fade-up">
+        <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center space-x-6 space-x-reverse">
+                {% if analysis.player_info.avatar %}
+                <img src="{{ analysis.player_info.avatar }}" alt="صورة اللاعب" class="w-20 h-20 rounded-full">
+                {% endif %}
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-800 arabic-text">
+                        {{ analysis.username }}
+                    </h1>
+                    <p class="text-gray-600 arabic-text">
+                        {{ analysis.player_info.name or 'اللاعب' }} - 
+                        عضو منذ {{ analysis.player_info.joined|default('غير محدد') }}
+                    </p>
+                </div>
+            </div>
+            <div class="flex space-x-4 space-x-reverse">
+                <button onclick="window.print()" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition duration-300">
+                    طباعة التقرير
+                </button>
+                <a href="/" class="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition duration-300">
+                    تحليل لاعب آخر
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Overview -->
+    <div class="grid lg:grid-cols-4 md:grid-cols-2 gap-6 mb-8">
+        <div class="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl shadow-lg" data-aos="fade-up" data-aos-delay="100">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="font-bold text-green-800 arabic-text">المباريات المحللة</h3>
+                <div class="bg-green-200 p-3 rounded-lg">
+                    <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                </div>
+            </div>
+            <div class="text-3xl font-bold text-green-700 mb-2">{{ analysis.stats.total_games }}</div>
+            <p class="text-green-600 text-sm arabic-text">مباراة محللة</p>
+        </div>
+
+        <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl shadow-lg" data-aos="fade-up" data-aos-delay="200">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="font-bold text-blue-800 arabic-text">معدل الفوز</h3>
+                <div class="bg-blue-200 p-3 rounded-lg">
+                    <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+            </div>
+            <div class="text-3xl font-bold text-blue-700 mb-2">{{ analysis.stats.win_rate }}%</div>
+            <p class="text-blue-600 text-sm arabic-text">{{ analysis.stats.wins }} فوز من {{ analysis.stats.total_games }}</p>
+        </div>
+
+        <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-xl shadow-lg" data-aos="fade-up" data-aos-delay="300">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="font-bold text-purple-800 arabic-text">متوسط النقلات</h3>
+                <div class="bg-purple-200 p-3 rounded-lg">
+                    <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                    </svg>
+                </div>
+            </div>
+            <div class="text-3xl font-bold text-purple-700 mb-2">{{ "%.1f"|format(analysis.stats.avg_moves) }}</div>
+            <p class="text-purple-600 text-sm arabic-text">نقلة لكل مباراة</p>
+        </div>
+
+        <div class="bg-gradient-to-br from-orange-50 to-orange-100 p-6 rounded-xl shadow-lg" data-aos="fade-up" data-aos-delay="400">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="font-bold text-orange-800 arabic-text">إجمالي الوقت</h3>
+                <div class="bg-orange-200 p-3 rounded-lg">
+                    <svg class="w-8 h-8 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+            </div>
+            <div class="text-3xl font-bold text-orange-700 mb-2">{{ analysis.stats.total_time }}</div>
+            <p class="text-orange-600 text-sm arabic-text">دقيقة في المباريات</p>
+        </div>
+    </div>
+
+    <!-- Games List -->
+    <div class="bg-white rounded-2xl shadow-xl p-8 mb-8" data-aos="fade-up">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-2xl font-bold arabic-text">قائمة المباريات المحللة</h3>
+            <div class="flex space-x-2 space-x-reverse">
+                <select id="filterResult" onchange="filterGames()" class="px-4 py-2 border rounded-lg">
+                    <option value="all">جميع النتائج</option>
+                    <option value="فوز">الانتصارات فقط</option>
+                    <option value="خسارة">الهزائم فقط</option>
+                    <option value="تعادل">التعادل فقط</option>
+                </select>
+                <select id="sortGames" onchange="sortGames()" class="px-4 py-2 border rounded-lg">
+                    <option value="date">ترتيب بالتاريخ</option>
+                    <option value="moves">ترتيب بعدد النقلات</option>
+                    <option value="result">ترتيب بالنتيجة</option>
+                </select>
+            </div>
+        </div>
+        
+        <div id="gamesList" class="space-y-4">
+            {% for game in analysis.games %}
+            <div class="game-card border rounded-xl p-6 hover:shadow-lg transition duration-300 cursor-pointer" 
+                 data-result="{{ game.player_result }}" 
+                 data-moves="{{ game.total_moves }}"
+                 data-date="{{ game.date }}"
+                 onclick="viewGameDetails({{ loop.index0 }})">
+                
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center space-x-4 space-x-reverse">
+                        <!-- نتيجة المباراة -->
+                        <div class="result-badge 
+                            {% if game.player_result == 'فوز' %}bg-green-100 text-green-800 border-green-200{% endif %}
+                            {% if game.player_result == 'خسارة' %}bg-red-100 text-red-800 border-red-200{% endif %}
+                            {% if game.player_result == 'تعادل' %}bg-yellow-100 text-yellow-800 border-yellow-200{% endif %}
+                            px-3 py-1 rounded-full text-sm font-semibold border">
+                            {{ game.player_result }}
+                        </div>
+                        
+                        <!-- لون اللاعب -->
+                        <div class="text-lg">
+                            {% if game.player_color == 'white' %}⚪{% else %}⚫{% endif %}
+                        </div>
+                        
+                        <!-- المباراة -->
+                        <div>
+                            <h4 class="font-bold text-lg">
+                                {{ game.white_player }} ضد {{ game.black_player }}
+                            </h4>
+                            <p class="text-gray-600 text-sm">
+                                ضد {{ game.opponent }} • {{ game.opening }}
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- تفاصيل المباراة -->
+                    <div class="text-left text-sm text-gray-500">
+                        <p>{{ game.date }}</p>
+                        <p>{{ game.total_moves }} نقلة • {{ game.game_duration }} دقيقة</p>
+                        <p>{{ game.time_control }} • {% if game.rated %}مُقيمة{% else %}غير مُقيمة{% endif %}</p>
+                    </div>
+                </div>
+                
+                <!-- شريط تقدم المباراة -->
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="bg-blue-600 h-2 rounded-full" style="width: {{ (game.total_moves / 120 * 100)|int }}%"></div>
+                </div>
+                
+                <div class="mt-3 flex justify-between items-center text-sm text-gray-600">
+                    <span>النقلات: {{ game.total_moves }}</span>
+                    <span class="text-blue-600 hover:text-blue-800">اضغط للتفاصيل ←</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Openings Analysis -->
+    <div class="bg-white rounded-2xl shadow-xl p-8" data-aos="fade-up">
+        <h3 class="text-2xl font-bold mb-6 arabic-text">تحليل الافتتاحيات</h3>
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {% for opening, count in analysis.stats.openings.items() %}
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <h4 class="font-semibold mb-2">{{ opening }}</h4>
+                <div class="flex items-center justify-between">
+                    <span class="text-2xl font-bold text-blue-600">{{ count }}</span>
+                    <span class="text-sm text-gray-600">
+                        {{ "%.1f"|format((count / analysis.stats.total_games * 100)) }}%
+                    </span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-1 mt-2">
+                    <div class="bg-blue-600 h-1 rounded-full" style="width: {{ (count / analysis.stats.total_games * 100)|int }}%"></div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+function viewGameDetails(gameIndex) {
+    window.open(`/game/${gameIndex}`, '_blank');
+}
+
+function filterGames() {
+    const filter = document.getElementById('filterResult').value;
+    const games = document.querySelectorAll('.game-card');
+    
+    games.forEach(game => {
+        const result = game.getAttribute('data-result');
+        if (filter === 'all' || result === filter) {
+            game.style.display = 'block';
+        } else {
+            game.style.display = 'none';
+        }
+    });
+}
+
+function sortGames() {
+    const sortBy = document.getElementById('sortGames').value;
+    const container = document.getElementById('gamesList');
+    const games = Array.from(container.children);
+    
+    games.sort((a, b) => {
+        if (sortBy === 'moves') {
+            return parseInt(b.getAttribute('data-moves')) - parseInt(a.getAttribute('data-moves'));
+        } else if (sortBy === 'result') {
+            return a.getAttribute('data-result').localeCompare(b.getAttribute('data-result'));
+        } else {
+            return new Date(b.getAttribute('data-date')) - new Date(a.getAttribute('data-date'));
+        }
+    });
+    
+    games.forEach(game => container.appendChild(game));
+}
+</script>
+{% endblock %}

@@ -1,0 +1,632 @@
+{% extends "base.html" %}
+
+{% block title %}تصفية المباريات - {{ analysis.username }} - محلل الشطرنج الجزائري{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <!-- Header Section -->
+    <div class="bg-white rounded-3xl shadow-2xl p-8 mb-8" data-aos="fade-up">
+        <div class="text-center mb-8">
+            <div class="text-6xl mb-4 animate-bounce">🔍</div>
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-4 arabic-text bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                تصفية وتحليل المباريات
+            </h1>
+            <p class="text-xl text-gray-600 arabic-text leading-relaxed">
+                اعثر على المباريات التي تريد تحليلها بدقة - إجمالي 
+                <span class="font-bold text-blue-600">{{ analysis.games|length }}</span> 
+                مباراة محللة للاعب 
+                <span class="font-bold text-purple-600">{{ analysis.username }}</span>
+            </p>
+        </div>
+        
+        <!-- Quick Stats -->
+        <div class="grid md:grid-cols-4 gap-4 mb-8">
+            <div class="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-2xl text-center border border-green-200">
+                <div class="text-2xl font-bold text-green-600">{{ analysis.games|selectattr("player_result", "equalto", "فوز")|list|length }}</div>
+                <div class="text-sm text-gray-600">انتصارات</div>
+            </div>
+            <div class="bg-gradient-to-br from-red-50 to-red-100 p-4 rounded-2xl text-center border border-red-200">
+                <div class="text-2xl font-bold text-red-600">{{ analysis.games|selectattr("player_result", "equalto", "خسارة")|list|length }}</div>
+                <div class="text-sm text-gray-600">هزائم</div>
+            </div>
+            <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 p-4 rounded-2xl text-center border border-yellow-200">
+                <div class="text-2xl font-bold text-yellow-600">{{ analysis.games|selectattr("player_result", "equalto", "تعادل")|list|length }}</div>
+                <div class="text-sm text-gray-600">تعادل</div>
+            </div>
+            <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-2xl text-center border border-blue-200">
+                <div class="text-2xl font-bold text-blue-600">{{ ((analysis.games|length) / (analysis.games|length) * 100)|round(1) if analysis.games else 0 }}%</div>
+                <div class="text-sm text-gray-600">معدل النشاط</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters Section -->
+    <div class="bg-white rounded-3xl shadow-xl p-8 mb-8" data-aos="fade-up" data-aos-delay="200">
+        <h2 class="text-2xl font-bold mb-6 arabic-text flex items-center">
+            <span class="text-3xl ml-3">⚙️</span>
+            معايير التصفية المتقدمة
+        </h2>
+        
+        <div class="grid lg:grid-cols-4 md:grid-cols-2 gap-6 mb-6">
+            <!-- Result Filter -->
+            <div class="space-y-2">
+                <label for="resultFilter" class="block text-sm font-semibold text-gray-700 arabic-text">
+                    🏆 النتيجة
+                </label>
+                <select id="resultFilter" class="w-full p-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300">
+                    <option value="">جميع النتائج</option>
+                    <option value="فوز">🟢 فوز</option>
+                    <option value="خسارة">🔴 خسارة</option>
+                    <option value="تعادل">🟡 تعادل</option>
+                </select>
+            </div>
+            
+            <!-- Color Filter -->
+            <div class="space-y-2">
+                <label for="colorFilter" class="block text-sm font-semibold text-gray-700 arabic-text">
+                    🎨 لون القطع
+                </label>
+                <select id="colorFilter" class="w-full p-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300">
+                    <option value="">جميع الألوان</option>
+                    <option value="white">⚪ أبيض</option>
+                    <option value="black">⚫ أسود</option>
+                </select>
+            </div>
+            
+            <!-- Opening Filter -->
+            <div class="space-y-2">
+                <label for="openingFilter" class="block text-sm font-semibold text-gray-700 arabic-text">
+                    ♟️ الافتتاحية
+                </label>
+                <select id="openingFilter" class="w-full p-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300">
+                    <option value="">جميع الافتتاحيات</option>
+                    {% set openings = analysis.games|map(attribute='opening')|unique|list %}
+                    {% for opening in openings %}
+                        <option value="{{ opening }}">{{ opening }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <!-- Date Range Filter -->
+            <div class="space-y-2">
+                <label for="dateFilter" class="block text-sm font-semibold text-gray-700 arabic-text">
+                    📅 فترة زمنية
+                </label>
+                <select id="dateFilter" class="w-full p-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300">
+                    <option value="">جميع التواريخ</option>
+                    <option value="last-week">آخر أسبوع</option>
+                    <option value="last-month">آخر شهر</option>
+                    <option value="last-3months">آخر 3 أشهر</option>
+                </select>
+            </div>
+        </div>
+        
+        <!-- Advanced Filters -->
+        <div class="border-t border-gray-200 pt-6">
+            <h3 class="text-lg font-bold mb-4 arabic-text">🔧 تصفية متقدمة</h3>
+            <div class="grid lg:grid-cols-3 md:grid-cols-2 gap-6">
+                <!-- Move Count Range -->
+                <div class="space-y-2">
+                    <label for="moveRangeFilter" class="block text-sm font-semibold text-gray-700 arabic-text">
+                        ⏱️ عدد النقلات
+                    </label>
+                    <select id="moveRangeFilter" class="w-full p-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300">
+                        <option value="">جميع الأطوال</option>
+                        <option value="short">قصيرة (أقل من 25 نقلة)</option>
+                        <option value="medium">متوسطة (25-50 نقلة)</option>
+                        <option value="long">طويلة (أكثر من 50 نقلة)</option>
+                    </select>
+                </div>
+                
+                <!-- Time Control -->
+                <div class="space-y-2">
+                    <label for="timeControlFilter" class="block text-sm font-semibold text-gray-700 arabic-text">
+                        ⏰ التحكم الزمني
+                    </label>
+                    <select id="timeControlFilter" class="w-full p-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300">
+                        <option value="">جميع الأنواع</option>
+                        {% set time_controls = analysis.games|map(attribute='time_control')|unique|list %}
+                        {% for tc in time_controls %}
+                            <option value="{{ tc }}">{{ tc }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <!-- Game Rating -->
+                <div class="space-y-2">
+                    <label for="ratedFilter" class="block text-sm font-semibold text-gray-700 arabic-text">
+                        📊 نوع المباراة
+                    </label>
+                    <select id="ratedFilter" class="w-full p-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300">
+                        <option value="">جميع الأنواع</option>
+                        <option value="true">مُقيمة</option>
+                        <option value="false">غير مُقيمة</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Filter Actions -->
+        <div class="flex justify-center space-x-4 space-x-reverse mt-8">
+            <button onclick="resetFilters()" class="bg-gradient-to-r from-gray-500 to-gray-600 text-white px-6 py-3 rounded-xl hover:from-gray-600 hover:to-gray-700 transition duration-300 font-semibold">
+                🔄 إعادة تعيين
+            </button>
+            <button onclick="exportFilteredGames()" class="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-xl hover:from-green-600 hover:to-green-700 transition duration-300 font-semibold">
+                📁 تصدير النتائج
+            </button>
+        </div>
+    </div>
+    
+    <!-- Results Counter -->
+    <div class="bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-2xl p-6 mb-8 text-center" data-aos="fade-up" data-aos-delay="400">
+        <div class="text-3xl font-bold mb-2" id="resultCounter">{{ analysis.games|length }}</div>
+        <div class="text-blue-100">مباراة تطابق المعايير المحددة</div>
+    </div>
+    
+    <!-- Games List -->
+    <div class="bg-white rounded-3xl shadow-xl p-8" data-aos="fade-up" data-aos-delay="600">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold arabic-text flex items-center">
+                <span class="text-3xl ml-3">📋</span>
+                نتائج البحث
+            </h2>
+            <div class="text-sm text-gray-500" id="sortOptions">
+                <label for="sortBy" class="mr-2">ترتيب حسب:</label>
+                <select id="sortBy" class="p-2 border rounded-lg">
+                    <option value="date">التاريخ</option>
+                    <option value="moves">عدد النقلات</option>
+                    <option value="result">النتيجة</option>
+                </select>
+            </div>
+        </div>
+        
+        <div id="filteredGames" class="space-y-4">
+            {% for game in analysis.games %}
+            <div class="game-item border-2 border-gray-200 rounded-xl p-6 hover:shadow-lg hover:border-blue-300 transition duration-300 cursor-pointer" 
+                 data-result="{{ game.player_result }}" 
+                 data-color="{{ game.player_color }}" 
+                 data-opening="{{ game.opening }}"
+                 data-moves="{{ game.total_moves }}"
+                 data-date="{{ game.date }}"
+                 data-time-control="{{ game.time_control }}"
+                 data-rated="{{ game.rated|lower }}"
+                 data-game-id="{{ loop.index0 }}"
+                 onclick="viewGameAnalysis({{ loop.index0 }})">
+                
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center space-x-4 space-x-reverse">
+                        <!-- Result Badge -->
+                        <span class="result-badge {{ 'bg-green-100 text-green-800 border-green-200' if game.player_result == 'فوز' else 'bg-red-100 text-red-800 border-red-200' if game.player_result == 'خسارة' else 'bg-yellow-100 text-yellow-800 border-yellow-200' }} px-4 py-2 rounded-full text-sm font-bold border-2">
+                            {{ game.player_result }}
+                        </span>
+                        
+                        <!-- Color Icon -->
+                        <div class="text-3xl">{{ '⚪' if game.player_color == 'white' else '⚫' }}</div>
+                        
+                        <!-- Game Info -->
+                        <div>
+                            <h4 class="font-bold text-lg text-gray-800">{{ game.white_player }} ضد {{ game.black_player }}</h4>
+                            <div class="flex items-center space-x-3 space-x-reverse text-sm text-gray-600 mt-2">
+                                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full">{{ game.opening }}</span>
+                                <span>{{ game.total_moves }} نقلة</span>
+                                {% if game.game_quality %}
+                                <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded-full">جودة: {{ game.game_quality }}/10</span>
+                                {% endif %}
+                                <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded-full">{{ game.time_control }}</span>
+                                {% if game.rated %}
+                                <span class="bg-orange-100 text-orange-800 px-2 py-1 rounded-full">مُقيمة</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Game Meta -->
+                    <div class="text-right">
+                        <div class="text-sm font-medium text-gray-700">{{ game.date }}</div>
+                        {% if game.game_duration %}
+                        <div class="text-xs text-gray-500 mt-1">{{ game.game_duration }} دقيقة</div>
+                        {% endif %}
+                        <div class="mt-2">
+                            <span class="bg-indigo-100 text-indigo-800 px-2 py-1 rounded-full text-xs font-medium">
+                                انقر للتحليل
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- No Results Message -->
+        <div id="noResults" class="hidden text-center py-12">
+            <div class="text-6xl mb-4">🔍</div>
+            <h3 class="text-2xl font-bold text-gray-600 mb-4 arabic-text">لا توجد مباريات مطابقة</h3>
+            <p class="text-gray-500 arabic-text">جرب تغيير معايير البحث للعثور على مباريات أخرى</p>
+            <button onclick="resetFilters()" class="mt-4 bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition duration-300">
+                إعادة تعيين المرشحات
+            </button>
+        </div>
+    </div>
+    
+    <!-- Pagination -->
+    <div class="flex justify-center mt-8" id="pagination">
+        <div class="bg-white rounded-2xl shadow-lg p-4">
+            <div class="flex items-center space-x-2 space-x-reverse">
+                <button onclick="previousPage()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition duration-300" id="prevBtn">
+                    السابق
+                </button>
+                <div class="flex space-x-1 space-x-reverse" id="pageNumbers">
+                    <!-- سيتم إنشاؤها بـ JavaScript -->
+                </div>
+                <button onclick="nextPage()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition duration-300" id="nextBtn">
+                    التالي
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript للتفاعل والفلترة -->
+<script>
+// متغيرات عامة
+let allGames = [];
+let filteredGames = [];
+let currentPage = 1;
+const gamesPerPage = 10;
+
+// تهيئة البيانات
+document.addEventListener('DOMContentLoaded', function() {
+    initializeGames();
+    setupEventListeners();
+    updatePagination();
+    console.log('🔍 Filter Games initialized with {{ analysis.games|length }} games');
+});
+
+// تهيئة المباريات
+function initializeGames() {
+    allGames = Array.from(document.querySelectorAll('.game-item'));
+    filteredGames = [...allGames];
+}
+
+// إعداد مستمعي الأحداث
+function setupEventListeners() {
+    document.getElementById('resultFilter').addEventListener('change', filterGames);
+    document.getElementById('colorFilter').addEventListener('change', filterGames);
+    document.getElementById('openingFilter').addEventListener('change', filterGames);
+    document.getElementById('dateFilter').addEventListener('change', filterGames);
+    document.getElementById('moveRangeFilter').addEventListener('change', filterGames);
+    document.getElementById('timeControlFilter').addEventListener('change', filterGames);
+    document.getElementById('ratedFilter').addEventListener('change', filterGames);
+    document.getElementById('sortBy').addEventListener('change', sortGames);
+}
+
+// تصفية المباريات
+function filterGames() {
+    const filters = {
+        result: document.getElementById('resultFilter').value,
+        color: document.getElementById('colorFilter').value,
+        opening: document.getElementById('openingFilter').value,
+        date: document.getElementById('dateFilter').value,
+        moveRange: document.getElementById('moveRangeFilter').value,
+        timeControl: document.getElementById('timeControlFilter').value,
+        rated: document.getElementById('ratedFilter').value
+    };
+    
+    filteredGames = allGames.filter(game => {
+        // فلترة النتيجة
+        if (filters.result && game.dataset.result !== filters.result) return false;
+        
+        // فلترة اللون
+        if (filters.color && game.dataset.color !== filters.color) return false;
+        
+        // فلترة الافتتاحية
+        if (filters.opening && game.dataset.opening !== filters.opening) return false;
+        
+        // فلترة التحكم الزمني
+        if (filters.timeControl && game.dataset.timeControl !== filters.timeControl) return false;
+        
+        // فلترة المباريات المُقيمة
+        if (filters.rated && game.dataset.rated !== filters.rated) return false;
+        
+        // فلترة عدد النقلات
+        if (filters.moveRange) {
+            const moves = parseInt(game.dataset.moves);
+            switch (filters.moveRange) {
+                case 'short':
+                    if (moves >= 25) return false;
+                    break;
+                case 'medium':
+                    if (moves < 25 || moves > 50) return false;
+                    break;
+                case 'long':
+                    if (moves <= 50) return false;
+                    break;
+            }
+        }
+        
+        // فلترة التاريخ
+        if (filters.date) {
+            const gameDate = new Date(game.dataset.date.split('.').reverse().join('-'));
+            const now = new Date();
+            const daysDiff = (now - gameDate) / (1000 * 60 * 60 * 24);
+            
+            switch (filters.date) {
+                case 'last-week':
+                    if (daysDiff > 7) return false;
+                    break;
+                case 'last-month':
+                    if (daysDiff > 30) return false;
+                    break;
+                case 'last-3months':
+                    if (daysDiff > 90) return false;
+                    break;
+            }
+        }
+        
+        return true;
+    });
+    
+    currentPage = 1;
+    updateDisplay();
+    updateResultCounter();
+    updatePagination();
+    
+    console.log(`🔍 Filtered ${filteredGames.length} games from ${allGames.length} total`);
+}
+
+// ترتيب المباريات
+function sortGames() {
+    const sortBy = document.getElementById('sortBy').value;
+    
+    filteredGames.sort((a, b) => {
+        switch (sortBy) {
+            case 'date':
+                const dateA = new Date(a.dataset.date.split('.').reverse().join('-'));
+                const dateB = new Date(b.dataset.date.split('.').reverse().join('-'));
+                return dateB - dateA; // الأحدث أولاً
+            case 'moves':
+                return parseInt(b.dataset.moves) - parseInt(a.dataset.moves); // الأطول أولاً
+            case 'result':
+                const order = { 'فوز': 3, 'تعادل': 2, 'خسارة': 1 };
+                return order[b.dataset.result] - order[a.dataset.result];
+            default:
+                return 0;
+        }
+    });
+    
+    updateDisplay();
+}
+
+// تحديث العرض
+function updateDisplay() {
+    // إخفاء جميع المباريات
+    allGames.forEach(game => {
+        game.style.display = 'none';
+    });
+    
+    // عرض المباريات المفلترة للصفحة الحالية
+    const startIndex = (currentPage - 1) * gamesPerPage;
+    const endIndex = startIndex + gamesPerPage;
+    const gamesToShow = filteredGames.slice(startIndex, endIndex);
+    
+    if (gamesToShow.length === 0 && filteredGames.length === 0) {
+        document.getElementById('noResults').classList.remove('hidden');
+        document.getElementById('filteredGames').classList.add('hidden');
+    } else {
+        document.getElementById('noResults').classList.add('hidden');
+        document.getElementById('filteredGames').classList.remove('hidden');
+        
+        // إعادة ترتيب العناصر في DOM
+        const container = document.getElementById('filteredGames');
+        gamesToShow.forEach(game => {
+            game.style.display = 'block';
+            container.appendChild(game);
+        });
+    }
+}
+
+// تحديث عداد النتائج
+function updateResultCounter() {
+    const counter = document.getElementById('resultCounter');
+    counter.textContent = filteredGames.length;
+    
+    // تأثير بصري
+    counter.style.animation = 'bounce 0.5s ease-in-out';
+    setTimeout(() => {
+        counter.style.animation = '';
+    }, 500);
+}
+
+// إعادة تعيين المرشحات
+function resetFilters() {
+    document.getElementById('resultFilter').value = '';
+    document.getElementById('colorFilter').value = '';
+    document.getElementById('openingFilter').value = '';
+    document.getElementById('dateFilter').value = '';
+    document.getElementById('moveRangeFilter').value = '';
+    document.getElementById('timeControlFilter').value = '';
+    document.getElementById('ratedFilter').value = '';
+    
+    filteredGames = [...allGames];
+    currentPage = 1;
+    updateDisplay();
+    updateResultCounter();
+    updatePagination();
+    
+    // إشعار
+    showNotification('تم إعادة تعيين جميع المرشحات', 'info');
+}
+
+// تصدير النتائج المفلترة
+function exportFilteredGames() {
+    if (filteredGames.length === 0) {
+        showNotification('لا توجد مباريات للتصدير', 'error');
+        return;
+    }
+    
+    const data = filteredGames.map(game => ({
+        white_player: game.querySelector('h4').textContent.split(' ضد ')[0],
+        black_player: game.querySelector('h4').textContent.split(' ضد ')[1],
+        result: game.dataset.result,
+        color: game.dataset.color,
+        opening: game.dataset.opening,
+        moves: game.dataset.moves,
+        date: game.dataset.date,
+        time_control: game.dataset.timeControl,
+        rated: game.dataset.rated === 'true'
+    }));
+    
+    const exportData = {
+        player: '{{ analysis.username }}',
+        export_date: new Date().toISOString(),
+        total_filtered_games: filteredGames.length,
+        games: data
+    };
+    
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `filtered-games-{{ analysis.username }}-${new Date().toISOString().split('T')[0]}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+    
+    showNotification(`تم تصدير ${filteredGames.length} مباراة بنجاح!`, 'success');
+}
+
+// عرض تحليل المباراة
+function viewGameAnalysis(gameId) {
+    window.open(`/game_analysis/${gameId}`, '_blank');
+}
+
+// التنقل بين الصفحات
+function updatePagination() {
+    const totalPages = Math.ceil(filteredGames.length / gamesPerPage);
+    const pageNumbers = document.getElementById('pageNumbers');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    
+    // تحديث الأزرار
+    prevBtn.disabled = currentPage === 1;
+    nextBtn.disabled = currentPage === totalPages || totalPages === 0;
+    
+    prevBtn.classList.toggle('opacity-50', currentPage === 1);
+    nextBtn.classList.toggle('opacity-50', currentPage === totalPages || totalPages === 0);
+    
+    // إنشاء أرقام الصفحات
+    pageNumbers.innerHTML = '';
+    
+    if (totalPages <= 5) {
+        for (let i = 1; i <= totalPages; i++) {
+            createPageButton(i);
+        }
+    } else {
+        createPageButton(1);
+        if (currentPage > 3) {
+            pageNumbers.appendChild(document.createTextNode('...'));
+        }
+        
+        const start = Math.max(2, currentPage - 1);
+        const end = Math.min(totalPages - 1, currentPage + 1);
+        
+        for (let i = start; i <= end; i++) {
+            createPageButton(i);
+        }
+        
+        if (currentPage < totalPages - 2) {
+            pageNumbers.appendChild(document.createTextNode('...'));
+        }
+        
+        if (totalPages > 1) {
+            createPageButton(totalPages);
+        }
+    }
+}
+
+function createPageButton(pageNum) {
+    const button = document.createElement('button');
+    button.textContent = pageNum;
+    button.className = `px-3 py-1 rounded-lg transition duration-300 ${
+        pageNum === currentPage 
+            ? 'bg-blue-600 text-white' 
+            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+    }`;
+    button.onclick = () => goToPage(pageNum);
+    document.getElementById('pageNumbers').appendChild(button);
+}
+
+function previousPage() {
+    if (currentPage > 1) {
+        currentPage--;
+        updateDisplay();
+        updatePagination();
+    }
+}
+
+function nextPage() {
+    const totalPages = Math.ceil(filteredGames.length / gamesPerPage);
+    if (currentPage < totalPages) {
+        currentPage++;
+        updateDisplay();
+        updatePagination();
+    }
+}
+
+function goToPage(page) {
+    currentPage = page;
+    updateDisplay();
+    updatePagination();
+}
+
+// نظام الإشعارات
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 left-4 z-50 p-4 rounded-lg text-white font-medium transform translate-x-full opacity-0 transition-all duration-300`;
+    
+    const colors = {
+        success: 'bg-green-500',
+        error: 'bg-red-500',
+        info: 'bg-blue-500',
+        warning: 'bg-yellow-500'
+    };
+    
+    notification.className += ` ${colors[type] || colors.info}`;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.classList.remove('translate-x-full', 'opacity-0');
+    }, 10);
+    
+    setTimeout(() => {
+        notification.classList.add('translate-x-full', 'opacity-0');
+        setTimeout(() => {
+            document.body.removeChild(notification);
+        }, 300);
+    }, 3000);
+}
+
+// إضافة CSS للرسوم المتحركة
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes bounce {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+    }
+    
+    .game-item:hover {
+        transform: translateY(-2px);
+    }
+    
+    .result-badge {
+        transition: all 0.3s ease;
+    }
+    
+    .game-item:hover .result-badge {
+        transform: scale(1.05);
+    }
+`;
+document.head.appendChild(style);
+</script>
+{% endblock %}

@@ -1,0 +1,555 @@
+{% extends "base.html" %}
+
+{% block title %}تحليل المباراة - {{ game.white_player }} ضد {{ game.black_player }}{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <!-- Game Header -->
+    <div class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-2xl shadow-xl p-8 mb-8" data-aos="fade-up">
+        <div class="flex items-center justify-between mb-4">
+            <div>
+                <h1 class="text-3xl font-bold arabic-text mb-2">
+                    🏁 تحليل المباراة المفصل
+                </h1>
+                <p class="text-purple-100 arabic-text">
+                    {{ game.white_player }} ⚪ ضد ⚫ {{ game.black_player }}
+                </p>
+            </div>
+            <div class="text-right">
+                <div class="text-4xl font-bold mb-2">
+                    {% if game.player_result == 'فوز' %}🏆
+                    {% elif game.player_result == 'خسارة' %}😔
+                    {% else %}🤝{% endif %}
+                </div>
+                <div class="text-lg">{{ game.player_result }}</div>
+            </div>
+        </div>
+        
+        <!-- Game Info -->
+        <div class="grid md:grid-cols-4 gap-4 bg-white bg-opacity-20 rounded-xl p-4">
+            <div class="text-center">
+                <div class="font-semibold">التاريخ</div>
+                <div>{{ game.date }}</div>
+            </div>
+            <div class="text-center">
+                <div class="font-semibold">النقلات</div>
+                <div>{{ game.total_moves }}</div>
+            </div>
+            <div class="text-center">
+                <div class="font-semibold">المدة</div>
+                <div>{{ game.game_duration }} دقيقة</div>
+            </div>
+            <div class="text-center">
+                <div class="font-semibold">النوع</div>
+                <div>{% if game.rated %}مُقيمة{% else %}غير مُقيمة{% endif %}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid lg:grid-cols-3 gap-8">
+        <!-- Chess Board Column -->
+        <div class="lg:col-span-2">
+            <!-- Board Container -->
+            <div class="bg-white rounded-2xl shadow-xl p-6 mb-6" data-aos="fade-up">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold arabic-text">🏁 رقعة الشطرنج</h2>
+                    <div class="flex space-x-2 space-x-reverse">
+                        <button onclick="resetBoard()" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition duration-300">
+                            إعادة تشغيل
+                        </button>
+                        <button onclick="flipBoard()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300">
+                            قلب الرقعة
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Chess Board -->
+                <div id="chessboard" class="mx-auto mb-6" style="width: 100%; max-width: 500px;"></div>
+                
+                <!-- Board Controls -->
+                <div class="flex justify-center items-center space-x-4 space-x-reverse mb-4">
+                    <button onclick="previousMove()" id="prevBtn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300" disabled>
+                        ← السابق
+                    </button>
+                    <button onclick="playPause()" id="playBtn" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition duration-300">
+                        ▶️ تشغيل تلقائي
+                    </button>
+                    <button onclick="nextMove()" id="nextBtn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300">
+                        التالي →
+                    </button>
+                </div>
+                
+                <!-- Move Counter -->
+                <div class="text-center">
+                    <span class="text-lg font-semibold">النقلة: </span>
+                    <span id="currentMove" class="text-2xl font-bold text-blue-600">0</span>
+                    <span class="text-lg"> من {{ game.total_moves }}</span>
+                </div>
+            </div>
+
+            <!-- Analysis Controls -->
+            <div class="bg-white rounded-2xl shadow-xl p-6" data-aos="fade-up" data-aos-delay="100">
+                <h3 class="text-xl font-bold mb-4 arabic-text">🔍 تحليل متقدم</h3>
+                
+                <div class="grid md:grid-cols-2 gap-4 mb-4">
+                    <button onclick="startEngineAnalysis()" id="analyzeBtn" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-6 rounded-xl hover:from-purple-700 hover:to-pink-700 transition duration-300">
+                        🧠 تحليل بالمحرك
+                    </button>
+                    <button onclick="showOpeningAnalysis()" class="bg-gradient-to-r from-green-600 to-blue-600 text-white py-3 px-6 rounded-xl hover:from-green-700 hover:to-blue-700 transition duration-300">
+                        📚 تحليل الافتتاحية
+                    </button>
+                </div>
+                
+                <!-- Analysis Results -->
+                <div id="analysisResults" class="hidden bg-gray-50 rounded-xl p-4">
+                    <h4 class="font-bold mb-3 arabic-text">نتائج التحليل:</h4>
+                    <div id="analysisContent"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Moves and Info Column -->
+        <div class="space-y-6">
+            <!-- Current Move Info -->
+            <div class="bg-white rounded-2xl shadow-xl p-6" data-aos="fade-up" data-aos-delay="200">
+                <h3 class="text-xl font-bold mb-4 arabic-text">📍 معلومات النقلة الحالية</h3>
+                <div id="currentMoveInfo" class="space-y-3">
+                    <div class="text-center py-8 text-gray-500">
+                        اختر نقلة لعرض التفاصيل
+                    </div>
+                </div>
+            </div>
+
+            <!-- Moves List -->
+            <div class="bg-white rounded-2xl shadow-xl p-6" data-aos="fade-up" data-aos-delay="300">
+                <h3 class="text-xl font-bold mb-4 arabic-text">📋 قائمة النقلات</h3>
+                <div id="movesList" class="space-y-2 max-h-96 overflow-y-auto">
+                    {% for move in game.moves %}
+                    <div class="move-item flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition duration-200"
+                         data-move-number="{{ loop.index0 }}"
+                         onclick="goToMove({{ loop.index0 }})">
+                        <div class="flex items-center space-x-3 space-x-reverse">
+                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm font-semibold">
+                                {{ move.number }}
+                            </span>
+                            <span class="font-bold text-lg">{{ move.move }}</span>
+                            <span class="text-xs text-gray-500">
+                                {% if move.color == 'white' %}⚪{% else %}⚫{% endif %}
+                            </span>
+                        </div>
+                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Game Statistics -->
+            <div class="bg-white rounded-2xl shadow-xl p-6" data-aos="fade-up" data-aos-delay="400">
+                <h3 class="text-xl font-bold mb-4 arabic-text">📊 إحصائيات المباراة</h3>
+                <div class="space-y-4">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">الافتتاحية:</span>
+                        <span class="font-semibold">{{ game.opening }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">لونك:</span>
+                        <span class="font-semibold">
+                            {% if game.player_color == 'white' %}البيضاء ⚪{% else %}السوداء ⚫{% endif %}
+                        </span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">الخصم:</span>
+                        <span class="font-semibold">{{ game.opponent }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">التحكم الزمني:</span>
+                        <span class="font-semibold">{{ game.time_control }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">النتيجة النهائية:</span>
+                        <span class="font-semibold {{ 'text-green-600' if game.player_result == 'فوز' else 'text-red-600' if game.player_result == 'خسارة' else 'text-yellow-600' }}">
+                            {{ game.result }}
+                        </span>
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="mt-6 space-y-2">
+                    <button onclick="downloadPGN()" class="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition duration-300">
+                        📥 تحميل PGN
+                    </button>
+                    <button onclick="shareGame()" class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-300">
+                        📤 مشاركة المباراة
+                    </button>
+                    {% if game.url %}
+                    <a href="{{ game.url }}" target="_blank" class="block w-full bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition duration-300 text-center">
+                        🌐 عرض في Chess.com
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Include Chessboard.js -->
+<link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
+<script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
+<script src="https://unpkg.com/chess.js@1.0.0/chess.min.js"></script>
+
+<script>
+// Game data
+const gameData = {{ game|tojson }};
+const moves = gameData.moves;
+
+// Chess game state
+let chess = new Chess();
+let board = null;
+let currentMoveIndex = -1;
+let isPlaying = false;
+let playInterval = null;
+
+// Initialize chess board
+function initBoard() {
+    const config = {
+        draggable: false,
+        position: 'start',
+        showNotation: true,
+        pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png'
+    };
+    
+    board = Chessboard('chessboard', config);
+    
+    // Resize board responsively
+    window.addEventListener('resize', board.resize);
+}
+
+// Move navigation
+function nextMove() {
+    if (currentMoveIndex < moves.length - 1) {
+        currentMoveIndex++;
+        const move = moves[currentMoveIndex];
+        
+        try {
+            chess.move(move.move);
+            board.position(chess.fen());
+            updateMoveDisplay();
+            highlightCurrentMove();
+            showMoveInfo(move, currentMoveIndex);
+        } catch (error) {
+            console.error('Invalid move:', move.move, error);
+        }
+    }
+    
+    updateButtons();
+}
+
+function previousMove() {
+    if (currentMoveIndex >= 0) {
+        chess.undo();
+        currentMoveIndex--;
+        board.position(chess.fen());
+        updateMoveDisplay();
+        highlightCurrentMove();
+        
+        if (currentMoveIndex >= 0) {
+            showMoveInfo(moves[currentMoveIndex], currentMoveIndex);
+        } else {
+            clearMoveInfo();
+        }
+    }
+    
+    updateButtons();
+}
+
+function goToMove(moveIndex) {
+    // Reset to start
+    chess = new Chess();
+    currentMoveIndex = -1;
+    
+    // Play moves up to target
+    for (let i = 0; i <= moveIndex; i++) {
+        if (i < moves.length) {
+            try {
+                chess.move(moves[i].move);
+                currentMoveIndex = i;
+            } catch (error) {
+                console.error('Error going to move:', i, moves[i].move);
+                break;
+            }
+        }
+    }
+    
+    board.position(chess.fen());
+    updateMoveDisplay();
+    highlightCurrentMove();
+    
+    if (currentMoveIndex >= 0) {
+        showMoveInfo(moves[currentMoveIndex], currentMoveIndex);
+    }
+    
+    updateButtons();
+}
+
+function resetBoard() {
+    chess = new Chess();
+    board.position('start');
+    currentMoveIndex = -1;
+    updateMoveDisplay();
+    clearMoveInfo();
+    clearMoveHighlight();
+    updateButtons();
+    
+    if (isPlaying) {
+        playPause();
+    }
+}
+
+function flipBoard() {
+    board.flip();
+}
+
+// Auto play functionality
+function playPause() {
+    const playBtn = document.getElementById('playBtn');
+    
+    if (isPlaying) {
+        clearInterval(playInterval);
+        playBtn.textContent = '▶️ تشغيل تلقائي';
+        isPlaying = false;
+    } else {
+        playBtn.textContent = '⏸️ إيقاف';
+        isPlaying = true;
+        
+        playInterval = setInterval(() => {
+            if (currentMoveIndex < moves.length - 1) {
+                nextMove();
+            } else {
+                playPause();
+            }
+        }, 1500);
+    }
+}
+
+// UI Updates
+function updateMoveDisplay() {
+    document.getElementById('currentMove').textContent = currentMoveIndex + 1;
+}
+
+function updateButtons() {
+    document.getElementById('prevBtn').disabled = currentMoveIndex < 0;
+    document.getElementById('nextBtn').disabled = currentMoveIndex >= moves.length - 1;
+}
+
+function highlightCurrentMove() {
+    clearMoveHighlight();
+    
+    if (currentMoveIndex >= 0) {
+        const moveElement = document.querySelector(`[data-move-number="${currentMoveIndex}"]`);
+        if (moveElement) {
+            moveElement.classList.add('bg-blue-100', 'border-2', 'border-blue-500');
+        }
+    }
+}
+
+function clearMoveHighlight() {
+    document.querySelectorAll('.move-item').forEach(item => {
+        item.classList.remove('bg-blue-100', 'border-2', 'border-blue-500');
+    });
+}
+
+function showMoveInfo(move, index) {
+    const info = document.getElementById('currentMoveInfo');
+    const evaluation = chess.in_check() ? 'شاه!' : chess.in_checkmate() ? 'شاه مات!' : chess.in_stalemate() ? 'جمود!' : 'طبيعية';
+    
+    info.innerHTML = `
+        <div class="space-y-3">
+            <div class="text-center">
+                <span class="text-3xl font-bold text-blue-600">${move.move}</span>
+                <div class="text-sm text-gray-500">النقلة رقم ${index + 1}</div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-3 text-sm">
+                <div class="bg-gray-50 p-3 rounded-lg">
+                    <div class="font-semibold text-gray-700">اللاعب</div>
+                    <div>${move.color === 'white' ? 'الأبيض ⚪' : 'الأسود ⚫'}</div>
+                </div>
+                <div class="bg-gray-50 p-3 rounded-lg">
+                    <div class="font-semibold text-gray-700">حالة اللعبة</div>
+                    <div class="${evaluation.includes('شاه') ? 'text-red-600 font-bold' : ''}">${evaluation}</div>
+                </div>
+            </div>
+            
+            <div class="bg-blue-50 p-3 rounded-lg">
+                <div class="font-semibold text-blue-800 mb-1">موضع FEN:</div>
+                <code class="text-xs break-all text-blue-600">${move.fen}</code>
+            </div>
+        </div>
+    `;
+}
+
+function clearMoveInfo() {
+    document.getElementById('currentMoveInfo').innerHTML = `
+        <div class="text-center py-8 text-gray-500">
+            اختر نقلة لعرض التفاصيل
+        </div>
+    `;
+}
+
+// Analysis functions
+function startEngineAnalysis() {
+    const btn = document.getElementById('analyzeBtn');
+    const resultsDiv = document.getElementById('analysisResults');
+    const contentDiv = document.getElementById('analysisContent');
+    
+    btn.disabled = true;
+    btn.textContent = '🔄 جارِ التحليل...';
+    
+    // محاكاة تحليل المحرك
+    setTimeout(() => {
+        const currentPos = chess.fen();
+        const moveNumber = currentMoveIndex + 1;
+        
+        // تحليل بسيط (في التطبيق الحقيقي ستستخدم Stockfish)
+        const analysis = {
+            evaluation: Math.random() * 4 - 2, // تقييم عشوائي للمحاكاة
+            bestMoves: ['Nf3', 'e4', 'd4'], // نقلات مقترحة
+            depth: 15
+        };
+        
+        contentDiv.innerHTML = `
+            <div class="space-y-3">
+                <div class="flex justify-between">
+                    <span>تقييم الموضع:</span>
+                    <span class="font-bold ${analysis.evaluation > 0 ? 'text-green-600' : analysis.evaluation < 0 ? 'text-red-600' : 'text-gray-600'}">
+                        ${analysis.evaluation > 0 ? '+' : ''}${analysis.evaluation.toFixed(2)}
+                    </span>
+                </div>
+                <div>
+                    <div class="font-semibold mb-1">أفضل النقلات المقترحة:</div>
+                    <div class="flex space-x-2 space-x-reverse">
+                        ${analysis.bestMoves.map(move => `
+                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-mono">${move}</span>
+                        `).join('')}
+                    </div>
+                </div>
+                <div class="text-xs text-gray-500">
+                    العمق: ${analysis.depth} • الوقت: 2.3 ثانية
+                </div>
+            </div>
+        `;
+        
+        resultsDiv.classList.remove('hidden');
+        btn.disabled = false;
+        btn.textContent = '🧠 تحليل بالمحرك';
+        
+    }, 2000);
+}
+
+function showOpeningAnalysis() {
+    const contentDiv = document.getElementById('analysisContent');
+    const resultsDiv = document.getElementById('analysisResults');
+    
+    contentDiv.innerHTML = `
+        <div class="space-y-3">
+            <div>
+                <div class="font-semibold text-green-800 mb-2">📚 تحليل الافتتاحية</div>
+                <div class="bg-green-50 p-3 rounded-lg">
+                    <h4 class="font-bold">${gameData.opening}</h4>
+                    <p class="text-sm text-gray-600 mt-2">
+                        هذه افتتاحية شائعة وقوية. النقلات الأولى تهدف إلى السيطرة على المركز وتطوير القطع بسرعة.
+                    </p>
+                </div>
+            </div>
+            
+            <div>
+                <div class="font-semibold mb-2">الأهداف الاستراتيجية:</div>
+                <ul class="text-sm space-y-1">
+                    <li>• السيطرة على المركز</li>
+                    <li>• تطوير القطع الصغيرة</li>
+                    <li>• أمان الملك</li>
+                    <li>• إنشاء تهديدات تكتيكية</li>
+                </ul>
+            </div>
+        </div>
+    `;
+    
+    resultsDiv.classList.remove('hidden');
+}
+
+// Utility functions
+function downloadPGN() {
+    const pgn = gameData.pgn || generatePGN();
+    const blob = new Blob([pgn], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `game-${gameData.white_player}-vs-${gameData.black_player}-${gameData.date}.pgn`;
+    link.click();
+    
+    URL.revokeObjectURL(url);
+}
+
+function generatePGN() {
+    let pgn = `[Event "Chess.com Analysis"]\n`;
+    pgn += `[Date "${gameData.date}"]\n`;
+    pgn += `[White "${gameData.white_player}"]\n`;
+    pgn += `[Black "${gameData.black_player}"]\n`;
+    pgn += `[Result "${gameData.result}"]\n\n`;
+    
+    const movesPGN = moves.reduce((acc, move, index) => {
+        if (index % 2 === 0) {
+            acc += `${Math.floor(index / 2) + 1}. `;
+        }
+        acc += `${move.move} `;
+        return acc;
+    }, '');
+    
+    pgn += movesPGN + gameData.result;
+    
+    return pgn;
+}
+
+function shareGame() {
+    if (navigator.share) {
+        navigator.share({
+            title: `مباراة شطرنج: ${gameData.white_player} ضد ${gameData.black_player}`,
+            text: `شاهد تحليل هذه المباراة المثيرة`,
+            url: window.location.href
+        });
+    } else {
+        navigator.clipboard.writeText(window.location.href).then(() => {
+            alert('تم نسخ رابط المباراة!');
+        });
+    }
+}
+
+// Initialize when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    initBoard();
+    updateButtons();
+    
+    // إضافة مستمعي لوحة المفاتيح
+    document.addEventListener('keydown', function(e) {
+        switch(e.key) {
+            case 'ArrowRight':
+                nextMove();
+                break;
+            case 'ArrowLeft':
+                previousMove();
+                break;
+            case ' ':
+                e.preventDefault();
+                playPause();
+                break;
+            case 'Home':
+                resetBoard();
+                break;
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,409 @@
+<!-- templates/deep_analysis.html -->
+{% extends "base.html" %}
+
+{% block title %}التحليل العميق - {{ analysis.username }} - محلل الشطرنج الجزائري{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl shadow-xl p-8 mb-8" data-aos="fade-up">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-4xl font-bold arabic-text mb-2">
+                    التحليل العميق للاعب {{ analysis.username }}
+                </h1>
+                <p class="text-blue-100 arabic-text">
+                    تحليل شامل ومتقدم لـ {{ analysis.total_analyzed }} مباراة
+                </p>
+            </div>
+            <div class="text-6xl opacity-20">🧠</div>
+        </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="bg-white rounded-2xl shadow-lg mb-8" data-aos="fade-up" data-aos-delay="100">
+        <div class="flex border-b">
+            <button onclick="showTab('openings')" class="tab-button active px-6 py-4 font-semibold arabic-text border-b-2 border-blue-600 text-blue-600">
+                تحليل الافتتاحيات
+            </button>
+            <button onclick="showTab('performance')" class="tab-button px-6 py-4 font-semibold arabic-text text-gray-600 hover:text-blue-600">
+                تحليل الأداء
+            </button>
+            <button onclick="showTab('strengths')" class="tab-button px-6 py-4 font-semibold arabic-text text-gray-600 hover:text-blue-600">
+                نقاط القوة والضعف
+            </button>
+            <button onclick="showTab('trends')" class="tab-button px-6 py-4 font-semibold arabic-text text-gray-600 hover:text-blue-600">
+                الاتجاهات والتطور
+            </button>
+        </div>
+        
+        <!-- Openings Tab -->
+        <div id="openings-tab" class="tab-content p-8">
+            <h2 class="text-2xl font-bold mb-6 arabic-text">📊 تحليل الافتتاحيات والدفاعات</h2>
+            
+            <!-- Best and Worst Openings -->
+            <div class="grid lg:grid-cols-2 gap-8 mb-8">
+                <!-- As White -->
+                <div class="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl">
+                    <h3 class="text-xl font-bold text-green-800 mb-4 arabic-text">🏆 أفضل أداء بالقطع البيضاء</h3>
+                    {% if analysis.advanced_stats.openings_analysis.best_as_white[0] %}
+                    <div class="bg-white p-4 rounded-lg">
+                        <h4 class="font-bold text-lg mb-2">{{ analysis.advanced_stats.openings_analysis.best_as_white[1].info.name }}</h4>
+                        <div class="grid grid-cols-4 gap-4 text-center">
+                            <div>
+                                <div class="text-2xl font-bold text-green-600">{{ analysis.advanced_stats.openings_analysis.best_as_white[1].win_rate }}%</div>
+                                <div class="text-sm text-gray-600">معدل الفوز</div>
+                            </div>
+                            <div>
+                                <div class="text-2xl font-bold text-blue-600">{{ analysis.advanced_stats.openings_analysis.best_as_white[1].count }}</div>
+                                <div class="text-sm text-gray-600">المباريات</div>
+                            </div>
+                            <div>
+                                <div class="text-2xl font-bold text-green-600">{{ analysis.advanced_stats.openings_analysis.best_as_white[1].wins }}</div>
+                                <div class="text-sm text-gray-600">انتصارات</div>
+                            </div>
+                            <div>
+                                <div class="text-2xl font-bold text-red-600">{{ analysis.advanced_stats.openings_analysis.best_as_white[1].losses }}</div>
+                                <div class="text-sm text-gray-600">هزائم</div>
+                            </div>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-3 arabic-text">
+                            {{ analysis.advanced_stats.openings_analysis.best_as_white[1].info.description }}
+                        </p>
+                    </div>
+                    {% else %}
+                    <p class="text-gray-600 arabic-text">لا توجد بيانات كافية</p>
+                    {% endif %}
+                </div>
+
+                <!-- As Black -->
+                <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl">
+                    <h3 class="text-xl font-bold text-blue-800 mb-4 arabic-text">🛡️ أفضل أداء بالقطع السوداء</h3>
+                    {% if analysis.advanced_stats.openings_analysis.best_as_black[0] %}
+                    <div class="bg-white p-4 rounded-lg">
+                        <h4 class="font-bold text-lg mb-2">{{ analysis.advanced_stats.openings_analysis.best_as_black[1].info.name }}</h4>
+                        <div class="grid grid-cols-4 gap-4 text-center">
+                            <div>
+                                <div class="text-2xl font-bold text-blue-600">{{ analysis.advanced_stats.openings_analysis.best_as_black[1].win_rate }}%</div>
+                                <div class="text-sm text-gray-600">معدل الفوز</div>
+                            </div>
+                            <div>
+                                <div class="text-2xl font-bold text-blue-600">{{ analysis.advanced_stats.openings_analysis.best_as_black[1].count }}</div>
+                                <div class="text-sm text-gray-600">المباريات</div>
+                            </div>
+                            <div>
+                                <div class="text-2xl font-bold text-green-600">{{ analysis.advanced_stats.openings_analysis.best_as_black[1].wins }}</div>
+                                <div class="text-sm text-gray-600">انتصارات</div>
+                            </div>
+                            <div>
+                                <div class="text-2xl font-bold text-red-600">{{ analysis.advanced_stats.openings_analysis.best_as_black[1].losses }}</div>
+                                <div class="text-sm text-gray-600">هزائم</div>
+                            </div>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-3 arabic-text">
+                            {{ analysis.advanced_stats.openings_analysis.best_as_black[1].info.description }}
+                        </p>
+                    </div>
+                    {% else %}
+                    <p class="text-gray-600 arabic-text">لا توجد بيانات كافية</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- All Openings Analysis -->
+            <div class="grid lg:grid-cols-2 gap-8">
+                <!-- White Openings -->
+                <div class="bg-white border rounded-xl p-6">
+                    <h3 class="text-xl font-bold mb-4 arabic-text">⚪ الافتتاحيات بالقطع البيضاء</h3>
+                    <div class="space-y-4 max-h-96 overflow-y-auto">
+                        {% for opening_key, data in analysis.advanced_stats.openings_analysis.as_white.items() %}
+                        <div class="border rounded-lg p-4 hover:shadow-md transition duration-300">
+                            <div class="flex justify-between items-center mb-2">
+                                <h4 class="font-semibold">{{ data.info.name }}</h4>
+                                <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
+                                    {{ data.win_rate }}%
+                                </span>
+                            </div>
+                            <div class="flex justify-between text-sm text-gray-600">
+                                <span>{{ data.count }} مباراة</span>
+                                <span>{{ data.wins }}ف / {{ data.losses }}خ / {{ data.draws }}ت</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+                                <div class="bg-green-600 h-2 rounded-full" style="width: {{ data.win_rate }}%"></div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Black Defenses -->
+                <div class="bg-white border rounded-xl p-6">
+                    <h3 class="text-xl font-bold mb-4 arabic-text">⚫ الدفاعات بالقطع السوداء</h3>
+                    <div class="space-y-4 max-h-96 overflow-y-auto">
+                        {% for opening_key, data in analysis.advanced_stats.openings_analysis.as_black.items() %}
+                        <div class="border rounded-lg p-4 hover:shadow-md transition duration-300">
+                            <div class="flex justify-between items-center mb-2">
+                                <h4 class="font-semibold">{{ data.info.name }}</h4>
+                                <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-sm">
+                                    {{ data.win_rate }}%
+                                </span>
+                            </div>
+                            <div class="flex justify-between text-sm text-gray-600">
+                                <span>{{ data.count }} مباراة</span>
+                                <span>{{ data.wins }}ف / {{ data.losses }}خ / {{ data.draws }}ت</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+                                <div class="bg-blue-600 h-2 rounded-full" style="width: {{ data.win_rate }}%"></div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Tab -->
+        <div id="performance-tab" class="tab-content hidden p-8">
+            <h2 class="text-2xl font-bold mb-6 arabic-text">⚡ تحليل الأداء حسب اللون</h2>
+            
+            <div class="grid lg:grid-cols-2 gap-8 mb-8">
+                <!-- White Performance -->
+                <div class="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl">
+                    <h3 class="text-xl font-bold text-green-800 mb-4 arabic-text">⚪ الأداء بالقطع البيضاء</h3>
+                    <div class="bg-white p-6 rounded-lg">
+                        <div class="grid grid-cols-2 gap-6">
+                            <div class="text-center">
+                                <div class="text-4xl font-bold text-green-600 mb-2">
+                                    {{ analysis.advanced_stats.performance_by_color.white.win_rate }}%
+                                </div>
+                                <div class="text-gray-600 arabic-text">معدل الفوز</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-4xl font-bold text-blue-600 mb-2">
+                                    {{ analysis.advanced_stats.performance_by_color.white.games }}
+                                </div>
+                                <div class="text-gray-600 arabic-text">مباراة</div>
+                            </div>
+                        </div>
+                        <div class="mt-6 grid grid-cols-3 gap-4 text-center">
+                            <div>
+                                <div class="text-2xl font-bold text-green-600">{{ analysis.advanced_stats.performance_by_color.white.wins }}</div>
+                                <div class="text-sm text-gray-600">فوز</div>
+                            </div>
+                            <div>
+                                <div class="text-2xl font-bold text-red-600">{{ analysis.advanced_stats.performance_by_color.white.losses }}</div>
+                                <div class="text-sm text-gray-600">خسارة</div>
+                            </div>
+                            <div>
+                                <div class="text-2xl font-bold text-yellow-600">{{ analysis.advanced_stats.performance_by_color.white.draws }}</div>
+                                <div class="text-sm text-gray-600">تعادل</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Black Performance -->
+                <div class="bg-gradient-to-br from-gray-50 to-gray-100 p-6 rounded-xl">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4 arabic-text">⚫ الأداء بالقطع السوداء</h3>
+                    <div class="bg-white p-6 rounded-lg">
+                        <div class="grid grid-cols-2 gap-6">
+                            <div class="text-center">
+                                <div class="text-4xl font-bold text-blue-600 mb-2">
+                                    {{ analysis.advanced_stats.performance_by_color.black.win_rate }}%
+                                </div>
+                                <div class="text-gray-600 arabic-text">معدل الفوز</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-4xl font-bold text-gray-600 mb-2">
+                                    {{ analysis.advanced_stats.performance_by_color.black.games }}
+                                </div>
+                                <div class="text-gray-600 arabic-text">مباراة</div>
+                            </div>
+                        </div>
+                        <div class="mt-6 grid grid-cols-3 gap-4 text-center">
+                            <div>
+                                <div class="text-2xl font-bold text-green-600">{{ analysis.advanced_stats.performance_by_color.black.wins }}</div>
+                                <div class="text-sm text-gray-600">فوز</div>
+                            </div>
+                            <div>
+                                <div class="text-2xl font-bold text-red-600">{{ analysis.advanced_stats.performance_by_color.black.losses }}</div>
+                                <div class="text-sm text-gray-600">خسارة</div>
+                            </div>
+                            <div>
+                                <div class="text-2xl font-bold text-yellow-600">{{ analysis.advanced_stats.performance_by_color.black.draws }}</div>
+                                <div class="text-sm text-gray-600">تعادل</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Preferred Color -->
+            <div class="bg-white border rounded-xl p-6">
+                <h3 class="text-xl font-bold mb-4 arabic-text">🎯 التوصية</h3>
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <p class="text-lg arabic-text">
+                        <strong>اللون المفضل:</strong> 
+                        {% if analysis.advanced_stats.performance_by_color.preferred_color == 'white' %}
+                        القطع البيضاء ⚪ - أداء أفضل بـ {{ analysis.advanced_stats.performance_by_color.white.win_rate }}%
+                        {% else %}
+                        القطع السوداء ⚫ - أداء أفضل بـ {{ analysis.advanced_stats.performance_by_color.black.win_rate }}%
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Strengths Tab -->
+        <div id="strengths-tab" class="tab-content hidden p-8">
+            <h2 class="text-2xl font-bold mb-6 arabic-text">💪 نقاط القوة والضعف</h2>
+            
+            <div class="grid lg:grid-cols-2 gap-8 mb-8">
+                <!-- Strengths -->
+                <div class="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl">
+                    <h3 class="text-xl font-bold text-green-800 mb-4 arabic-text">🌟 نقاط القوة</h3>
+                    <div class="space-y-3">
+                        {% for strength in analysis.advanced_stats.strengths_and_weaknesses.strengths %}
+                        <div class="bg-white p-4 rounded-lg border-r-4 border-green-500">
+                            <div class="flex items-center">
+                                <span class="text-green-500 text-xl ml-3">✅</span>
+                                <span class="arabic-text">{{ strength }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Weaknesses -->
+                <div class="bg-gradient-to-br from-red-50 to-red-100 p-6 rounded-xl">
+                    <h3 class="text-xl font-bold text-red-800 mb-4 arabic-text">⚠️ نقاط الضعف</h3>
+                    <div class="space-y-3">
+                        {% for weakness in analysis.advanced_stats.strengths_and_weaknesses.weaknesses %}
+                        <div class="bg-white p-4 rounded-lg border-r-4 border-red-500">
+                            <div class="flex items-center">
+                                <span class="text-red-500 text-xl ml-3">⚠️</span>
+                                <span class="arabic-text">{{ weakness }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Game Length Analysis -->
+            <div class="bg-white border rounded-xl p-6">
+                <h3 class="text-xl font-bold mb-6 arabic-text">📊 تحليل الأداء حسب طول المباراة</h3>
+                <div class="grid md:grid-cols-3 gap-6">
+                    <!-- Short Games -->
+                    <div class="text-center">
+                        <div class="bg-yellow-100 p-6 rounded-xl">
+                            <h4 class="font-bold text-yellow-800 mb-2 arabic-text">مباريات قصيرة</h4>
+                            <p class="text-sm text-gray-600 mb-4">أقل من 30 نقلة</p>
+                            <div class="text-3xl font-bold text-yellow-600 mb-2">
+                                {{ analysis.advanced_stats.strengths_and_weaknesses.game_length_analysis.short.win_rate }}%
+                            </div>
+                            <p class="text-sm text-gray-600">
+                                {{ analysis.advanced_stats.strengths_and_weaknesses.game_length_analysis.short.wins }} من {{ analysis.advanced_stats.strengths_and_weaknesses.game_length_analysis.short.games }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Medium Games -->
+                    <div class="text-center">
+                        <div class="bg-blue-100 p-6 rounded-xl">
+                            <h4 class="font-bold text-blue-800 mb-2 arabic-text">مباريات متوسطة</h4>
+                            <p class="text-sm text-gray-600 mb-4">30-60 نقلة</p>
+                            <div class="text-3xl font-bold text-blue-600 mb-2">
+                                {{ analysis.advanced_stats.strengths_and_weaknesses.game_length_analysis.medium.win_rate }}%
+                            </div>
+                            <p class="text-sm text-gray-600">
+                                {{ analysis.advanced_stats.strengths_and_weaknesses.game_length_analysis.medium.wins }} من {{ analysis.advanced_stats.strengths_and_weaknesses.game_length_analysis.medium.games }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Long Games -->
+                    <div class="text-center">
+                        <div class="bg-purple-100 p-6 rounded-xl">
+                            <h4 class="font-bold text-purple-800 mb-2 arabic-text">مباريات طويلة</h4>
+                            <p class="text-sm text-gray-600 mb-4">أكثر من 60 نقلة</p>
+                            <div class="text-3xl font-bold text-purple-600 mb-2">
+                                {{ analysis.advanced_stats.strengths_and_weaknesses.game_length_analysis.long.win_rate }}%
+                            </div>
+                            <p class="text-sm text-gray-600">
+                                {{ analysis.advanced_stats.strengths_and_weaknesses.game_length_analysis.long.wins }} من {{ analysis.advanced_stats.strengths_and_weaknesses.game_length_analysis.long.games }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trends Tab -->
+        <div id="trends-tab" class="tab-content hidden p-8">
+            <h2 class="text-2xl font-bold mb-6 arabic-text">📈 اتجاهات الأداء والتطور</h2>
+            <div class="bg-blue-50 p-8 rounded-xl text-center">
+                <h3 class="text-xl font-bold text-blue-800 mb-4 arabic-text">قريباً: تحليل الاتجاهات الزمنية</h3>
+                <p class="text-blue-600 arabic-text">سيتم إضافة تحليل تطور الأداء عبر الوقت قريباً</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex justify-center space-x-4 space-x-reverse mb-8" data-aos="fade-up">
+        <a href="/filter_games" class="bg-blue-600 text-white px-8 py-3 rounded-xl hover:bg-blue-700 transition duration-300 shadow-lg">
+            🔍 تصفية وتحليل المباريات
+        </a>
+        <button onclick="exportAnalysis()" class="bg-green-600 text-white px-8 py-3 rounded-xl hover:bg-green-700 transition duration-300 shadow-lg">
+            📊 تصدير التحليل
+        </button>
+        <a href="/" class="bg-gray-600 text-white px-8 py-3 rounded-xl hover:bg-gray-700 transition duration-300 shadow-lg">
+            🔄 تحليل لاعب آخر
+        </a>
+    </div>
+</div>
+
+<script>
+function showTab(tabName) {
+    // إخفاء جميع التبويبات
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.add('hidden');
+    });
+    
+    // إزالة النشاط من جميع الأزرار
+    document.querySelectorAll('.tab-button').forEach(button => {
+        button.classList.remove('active', 'border-blue-600', 'text-blue-600');
+        button.classList.add('text-gray-600');
+    });
+    
+    // إظهار التبويبة المحددة
+    document.getElementById(tabName + '-tab').classList.remove('hidden');
+    
+    // تفعيل الزر المحدد
+    event.target.classList.add('active', 'border-blue-600', 'text-blue-600');
+    event.target.classList.remove('text-gray-600');
+}
+
+function exportAnalysis() {
+    const analysisData = {{ analysis|tojson }};
+    const dataStr = JSON.stringify(analysisData, null, 2);
+    const dataBlob = new Blob([dataStr], {type: 'application/json'});
+    
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(dataBlob);
+    link.download = `deep-analysis-${analysisData.username}-${new Date().toISOString().split('T')[0]}.json`;
+    link.click();
+}
+</script>
+
+<style>
+.tab-button.active {
+    border-bottom: 2px solid #2563eb;
+    color: #2563eb;
+}
+
+.tab-button:hover {
+    color: #2563eb;
+}
+</style>
+{% endblock %}
